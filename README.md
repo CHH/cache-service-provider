@@ -16,6 +16,8 @@ This service provider for Silex uses the Cache classes from [Doctrine
 Common][] to provide a `cache` service to a Silex application, and
 other service providers.
 
+[Doctrine Common]: https://github.com/doctrine/common
+
 ### Configuration
 
 If you only need one application wide cache, then it's sufficient to
