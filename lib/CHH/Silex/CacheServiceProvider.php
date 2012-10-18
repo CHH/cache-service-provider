@@ -10,33 +10,41 @@ class CacheServiceProvider implements ServiceProviderInterface
 {
     function register(Application $app)
     {
-        $app['cache'] = $app->share(function($app) {
-            if (isset($app['cache.caches'])) {
-                if (isset($app['cache.caches']['default'])) {
-                    $default = $app['cache.caches']['default'];
-                } else {
-                    $default = current($app['caches']);
-                }
-            } else {
-                $default = $app['cache.provider'];
+        $app['cache.config_initializer'] = $app->protect(function() use ($app) {
+            static $initialized = false;
+
+            if ($initialized) return;
+
+            $initialized = true;
+
+            if (!isset($app['caches.options'])) {
+                $app['caches.options'] = array(
+                    'default' => isset($app['cache.options']) ? $app['cache.options'] : array()
+                );
             }
 
-            return $default;
-        });
+            $tmp = $app['caches.options'];
 
-        $app['caches'] = $app->share(function($app) {
-            $caches = $app['cache.caches'];
-
-            foreach ($caches as $cache => $provider) {
-                if (!$provider instanceof Cache) {
+            array_walk($tmp, function($options, $cache) {
+                if (!$options['provider'] instanceof Cache) {
                     throw new \UnexpectedValueException(sprintf(
                         'Provider for cache "%s" does not implement \Doctrine\Common\Cache\Cache',
                         $cache
                     ));
                 }
-            }
+            });
+        });
 
-            return $caches;
+        $app['cache'] = $app->share(function($app) {
+            $app['cache.config_initializer']();
+
+            return $app['caches.options']['default']['provider'];
+        });
+
+        $app['caches'] = $app->share(function($app) {
+            $app['cache.config_initializer']();
+
+            return array_map(function($it) { return $it['provider']; }, $app['caches.options']);
         });
     }
 

@@ -13,7 +13,9 @@ class CacheProviderTest extends \PHPUnit_Framework_TestCase
         $app = new Application;
 
         $app->register(new CacheServiceProvider, array(
-            'cache.provider' => new Cache\ArrayCache
+            'cache.options' => array(
+                'provider' => new Cache\ArrayCache
+            )
         ));
 
         $this->assertInstanceOf('\\Doctrine\\Common\\Cache\\ArrayCache', $app['cache']);
@@ -24,9 +26,9 @@ class CacheProviderTest extends \PHPUnit_Framework_TestCase
         $app = new Application;
 
         $app->register(new CacheServiceProvider, array(
-            'cache.caches' => array(
-                "default" => new Cache\ArrayCache,
-                "foo" => new Cache\FilesystemCache('/tmp')
+            'caches.options' => array(
+                "default" => array('provider' => new Cache\ArrayCache),
+                "foo" => array('provider' => new Cache\FilesystemCache('/tmp'))
             )
         ));
 
