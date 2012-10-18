@@ -1,0 +1,24 @@
+{
+    "name": "chh/cache-service-provider",
+    "description": "A Cache Service Provider for Silex, using Doctrine\\Common\\Cache",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Christoph Hochstrasser",
+            "email": "christoph.hochstrasser@gmail.com"
+        }
+    ],
+    "keywords": [
+        "silex", "cache"
+    ],
+    "require": {
+        "php": ">=5.3.3",
+        "silex/silex": "1.0.*@dev",
+        "doctrine/common": "2.3.*"
+    },
+    "autoload": {
+        "psr-0": {
+            "CHH\\Silex\\": "lib\/"
+        }
+    }
+}
