@@ -21,7 +21,7 @@ other service providers.
 ### Configuration
 
 If you only need one application wide cache, then it's sufficient to
-only define a default cache.
+only define a default cache, by setting `cache.options`:
 
 ```php
 <?php
@@ -38,7 +38,7 @@ $app->register(new \CHH\Silex\CacheServiceProvider, array(
 ```
 
 This cache is then available through the `cache` service, and provides
-an instance of `Doctrine\Common\Common\Cache`.
+an instance of `Doctrine\Common\Common\Cache`:
 
 ```php
 if ($app['cache']->exists('foo')) {
