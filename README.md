@@ -29,8 +29,6 @@ The cache named `default` is the cache available through the app's
 ```php
 <?php
 
-use Doctrine\Common\Cache;
-
 $app = new Silex\Application;
 
 $app->register(new \CHH\Silex\CacheServiceProvider, array(
@@ -49,7 +47,7 @@ The driver name can be either:
   `\Doctrine\Common\Cache\Cache`.
 
 This cache is then available through the `cache` service, and provides
-an instance of `Doctrine\Common\Common\Cache`:
+an instance of `Doctrine\Common\Cache\Cache`:
 
 ```php
 if ($app['cache']->contains('foo')) {
