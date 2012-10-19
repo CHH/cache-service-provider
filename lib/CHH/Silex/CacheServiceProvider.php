@@ -13,7 +13,15 @@ class CacheServiceProvider implements ServiceProviderInterface
         $app['cache.factory'] = $app->protect(function($options) {
             return function() use ($options) {
                 if (is_callable($options['driver'])) {
-                    return $options['driver']();
+                    $cache = $options['driver']();
+
+                    if (!$cache instanceof Cache) {
+                        throw new \UnexpectedValueException(sprintf(
+                            '"%s" does not implement \\Doctrine\\Common\\Cache\\Cache', get_class($cache)
+                        ));
+                    }
+
+                    return $cache;
                 }
 
                 # If the driver name appears to be a fully qualified class name, then use
@@ -50,6 +58,12 @@ class CacheServiceProvider implements ServiceProviderInterface
                 }
 
                 $cache = $class->newInstanceArgs($newInstanceArguments);
+
+                if (!$cache instanceof Cache) {
+                    throw new \UnexpectedValueException(sprintf(
+                        '"%s" does not implement \\Doctrine\\Common\\Cache\\Cache', $driverClass
+                    ));
+                }
 
                 if (isset($options['namespace']) and is_callable(array($cache, "setNamespace"))) {
                     $cache->setNamespace($options['namespace']);
