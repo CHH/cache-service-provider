@@ -34,7 +34,7 @@ $app = new Silex\Application;
 $app->register(new \CHH\Silex\CacheServiceProvider, array(
     'cache.options' => array("default" => array(
         "driver" => "apc"
-    )
+    ))
 ));
 ```
 
