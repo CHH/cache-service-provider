@@ -21,7 +21,11 @@ other service providers.
 ### Configuration
 
 If you only need one application wide cache, then it's sufficient to
-only define a default cache, by setting `cache.options`:
+only define a default cache, by setting the `default` key in `cache.options`.
+
+The cache definition is an array of options, with `driver` being the
+only mandatory option. All other options in the array, are treated as
+constructor arguments to the driver class.
 
 The cache named `default` is the cache available through the app's
 `cache` service.
