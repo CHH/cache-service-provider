@@ -13,9 +13,9 @@ class CacheProviderTest extends \PHPUnit_Framework_TestCase
         $app = new Application;
 
         $app->register(new CacheServiceProvider, array(
-            'cache.options' => array(
-                'provider' => new Cache\ArrayCache
-            )
+            'cache.options' => array("default" => array(
+                'driver' => "array"
+            ))
         ));
 
         $this->assertInstanceOf('\\Doctrine\\Common\\Cache\\ArrayCache', $app['cache']);
@@ -26,14 +26,34 @@ class CacheProviderTest extends \PHPUnit_Framework_TestCase
         $app = new Application;
 
         $app->register(new CacheServiceProvider, array(
-            'caches.options' => array(
-                "default" => array('provider' => new Cache\ArrayCache),
-                "foo" => array('provider' => new Cache\FilesystemCache('/tmp'))
+            'cache.options' => array(
+                "default" => array('driver' => "array"),
+                "foo" => array(
+                    'driver' => '\\Doctrine\\Common\\Cache\\FilesystemCache',
+                    'directory' => '/tmp'
+                )
             )
         ));
 
-        $this->assertEquals(2, count($app['caches']));
-        $this->assertInstanceOf('\\Doctrine\\Common\\Cache\\FileCache', $app['caches']['foo']);
+        $this->assertInstanceOf('\\Doctrine\\Common\\Cache\\FilesystemCache', $app['caches']['foo']);
         $this->assertInstanceOf('\\Doctrine\\Common\\Cache\\ArrayCache', $app['cache']);
+    }
+
+    function testCacheFactory()
+    {
+        $app = new Application;
+
+        $app->register(new CacheServiceProvider);
+
+        $app['cache.foo'] = $app['cache.factory'](array(
+            'driver' => 'array'
+        ));
+
+        $app['cache.bar'] = $app['cache.factory'](array(
+            'driver' => function() { return new Cache\ArrayCache; }
+        ));
+
+        $this->assertInstanceOf('\\Doctrine\\Common\\Cache\\ArrayCache', $app['cache.foo']);
+        $this->assertInstanceOf('\\Doctrine\\Common\\Cache\\ArrayCache', $app['cache.bar']);
     }
 }
