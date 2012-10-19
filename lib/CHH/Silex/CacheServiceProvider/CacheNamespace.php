@@ -4,6 +4,11 @@ namespace CHH\Silex\CacheServiceProvider;
 
 use Doctrine\Common\Cache\Cache;
 
+/**
+ * Provides non conflicting access to a common cache instance.
+ *
+ * @author Christoph Hochstrasser <christoph.hochstrasser@gmail.com>
+ */
 class CacheNamespace implements Cache
 {
     /** @var \Doctrine\Common\Cache\Cache */
