@@ -1,5 +1,11 @@
 # Silex Cache Service Provider
 
+This service provider for Silex uses the Cache classes from [Doctrine
+Common][] to provide a `cache` service to a Silex application, and
+other service providers.
+
+[Doctrine Common]: https://github.com/doctrine/common
+
 ## Install
 
 If you haven't got composer:
@@ -11,12 +17,6 @@ Add `chh/cache-service-provider` to your `composer.json`:
     % php composer.phar require chh/cache-service-provider:*@dev
 
 ## Usage
-
-This service provider for Silex uses the Cache classes from [Doctrine
-Common][] to provide a `cache` service to a Silex application, and
-other service providers.
-
-[Doctrine Common]: https://github.com/doctrine/common
 
 ### Configuration
 
