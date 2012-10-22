@@ -68,9 +68,16 @@ To configure multiple caches, define them as additional keys in
 $app->register(new \CHH\Silex\CacheServiceProvider, array(
     'cache.options' => array(
         'default' => array('driver' => 'apc'),
-        'file' => array('driver' => 'filesystem', 'directory' => '/tmp/myapp')
+        'file' => array(
+            'driver' => 'filesystem',
+            'directory' => '/tmp/myapp'
+        ),
+        'global' => array(
+            'driver' => 'redis',
+            'redis' => function() { return $app['redis']; }
+        )
     )
-))
+));
 ```
 
 All caches (including the default) are then available via the `caches`
