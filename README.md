@@ -73,8 +73,12 @@ $app->register(new \CHH\Silex\CacheServiceProvider, array(
             'directory' => '/tmp/myapp'
         ),
         'global' => array(
-            'driver' => 'redis',
-            'redis' => function() { return $app['redis']; }
+            'driver' => function() {
+                $redis = new \Doctrine\Common\Cache\RedisCache;
+                $redis->setRedis($app['redis']);
+
+                return $redis;
+            }
         )
     )
 ));
