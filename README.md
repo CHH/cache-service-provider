@@ -135,7 +135,7 @@ class ExampleServiceProvider extends \Silex\ServiceProviderInterface
             $app['caches']['example'] = $app->share(function() use ($app) {
                 # Use a CacheNamespace to safely add keys to the default
                 # cache.
-                return new CacheNamespace('example', $app['caches']['default'])
+                return new CacheNamespace('example', $app['caches']['default']);
             });
         }
     }
