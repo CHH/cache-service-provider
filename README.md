@@ -132,10 +132,11 @@ class ExampleServiceProvider extends \Silex\ServiceProviderInterface
     {
         # Check if Cache Service Provider is registered:
         if (isset($app['caches'])) {
-            $app['caches']['example'] = $app->share(function() use ($app) {
+            $app['caches'] = $app->share($app->extend(function($caches) use ($app) {
                 # Use a CacheNamespace to safely add keys to the default
                 # cache.
-                return new CacheNamespace('example', $app['caches']['default']);
+                $caches['example'] = new CacheNamespace('example', $caches['default']);
+                return $caches;
             });
         }
     }
