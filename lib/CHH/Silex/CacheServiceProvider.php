@@ -5,6 +5,7 @@ namespace CHH\Silex;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 use Doctrine\Common\Cache\Cache;
+use CHH\Silex\CacheServiceProvider\CacheNamespace;
 
 class CacheServiceProvider implements ServiceProviderInterface
 {
@@ -70,6 +71,12 @@ class CacheServiceProvider implements ServiceProviderInterface
                 }
 
                 return $cache;
+            };
+        });
+
+        $app['cache.namespace'] = $app->protect(function($name) use ($app) {
+            return function() use ($app, $name) {
+                return new CacheNamespace($name, $app['cache']);
             };
         });
 

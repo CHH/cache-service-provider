@@ -43,17 +43,33 @@ class CacheProviderTest extends \PHPUnit_Framework_TestCase
     {
         $app = new Application;
 
+        $app->register(new CacheServiceProvider, array('cache.options' => array(
+            'default' => 'array'
+        )));
+
+        $app['caches']['foo'] = $app->share($app['cache.factory'](array(
+            'driver' => 'array'
+        )));
+
+        $app['caches']['bar'] = $app->share($app['cache.factory'](array(
+            'driver' => function() { return new Cache\ArrayCache; }
+        )));
+
+        $this->assertInstanceOf('\\Doctrine\\Common\\Cache\\ArrayCache', $app['caches']['foo']);
+        $this->assertInstanceOf('\\Doctrine\\Common\\Cache\\ArrayCache', $app['caches']['bar']);
+    }
+
+    function testNamespaceFactory()
+    {
+        $app = new Application;
         $app->register(new CacheServiceProvider);
 
-        $app['cache.foo'] = $app['cache.factory'](array(
+        $app['cache.options'] = array('default' => array(
             'driver' => 'array'
         ));
 
-        $app['cache.bar'] = $app['cache.factory'](array(
-            'driver' => function() { return new Cache\ArrayCache; }
-        ));
+        $app['caches']['foo'] = $app->share($app['cache.namespace']('foo'));
 
-        $this->assertInstanceOf('\\Doctrine\\Common\\Cache\\ArrayCache', $app['cache.foo']);
-        $this->assertInstanceOf('\\Doctrine\\Common\\Cache\\ArrayCache', $app['cache.bar']);
+        $this->assertInstanceOf('\\CHH\\Silex\\CacheServiceProvider\\CacheNamespace', $app['caches']['foo']);
     }
 }
