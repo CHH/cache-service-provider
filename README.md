@@ -135,13 +135,28 @@ class ExampleServiceProvider extends \Silex\ServiceProviderInterface
             $app['caches'] = $app->share($app->extend(function($caches) use ($app) {
                 # Use a CacheNamespace to safely add keys to the default
                 # cache.
-                $caches['example'] = new CacheNamespace('example', $caches['default']);
+                $caches['example'] = $app->share(new CacheNamespace('example', $caches['default']));
                 return $caches;
             });
         }
     }
 
     function boot(\Silex\Application $app){}
+}
+```
+
+This library also provides the `cache.namespace` service, which returns a Closure suitable for assigning directly
+to a Pimple container. Using this, the above code can be further simplified:
+
+```php
+# Check if Cache Service Provider is registered:
+if (isset($app['caches'])) {
+    $app['caches'] = $app->share($app->extend(function($caches) use ($app) {
+        # Use a CacheNamespace to safely add keys to the default
+        # cache.
+        $caches['example'] = $app->share($app['cache.namespace']('example'));
+        return $caches;
+    });
 }
 ```
 
