@@ -16,6 +16,11 @@
         "silex/silex": "1.0.*@dev",
         "doctrine/cache": "~1.0"
     },
+    "minimum-stability": "dev",
+    "require-dev": {
+        "chh/bob": "1.0.*@dev",
+        "phpunit/phpunit": "~3.7"
+    },
     "autoload": {
         "psr-0": {
             "CHH\\Silex\\": "lib\/"

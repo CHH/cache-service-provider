@@ -47,13 +47,17 @@ class CacheProviderTest extends \PHPUnit_Framework_TestCase
             'default' => 'array'
         )));
 
-        $app['caches']['foo'] = $app->share($app['cache.factory'](array(
-            'driver' => 'array'
-        )));
+        $app['caches'] = $app->share($app->extend('caches', function($caches) use ($app) {
+            $caches['foo'] = $app->share($app['cache.factory'](array(
+                'driver' => 'array'
+            )));
 
-        $app['caches']['bar'] = $app->share($app['cache.factory'](array(
-            'driver' => function() { return new Cache\ArrayCache; }
-        )));
+            $caches['bar'] = $app->share($app['cache.factory'](array(
+                'driver' => function() { return new Cache\ArrayCache; }
+            )));
+
+            return $caches;
+        }));
 
         $this->assertInstanceOf('\\Doctrine\\Common\\Cache\\ArrayCache', $app['caches']['foo']);
         $this->assertInstanceOf('\\Doctrine\\Common\\Cache\\ArrayCache', $app['caches']['bar']);
