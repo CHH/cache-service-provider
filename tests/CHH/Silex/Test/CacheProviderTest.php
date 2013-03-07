@@ -5,6 +5,7 @@ namespace CHH\Silex\Test;
 use CHH\Silex\CacheServiceProvider;
 use Silex\Application;
 use Doctrine\Common\Cache;
+use Doctrine\Common\Cache\ArrayCache;
 
 class CacheProviderTest extends \PHPUnit_Framework_TestCase
 {
@@ -75,5 +76,25 @@ class CacheProviderTest extends \PHPUnit_Framework_TestCase
         $app['caches']['foo'] = $app->share($app['cache.namespace']('foo'));
 
         $this->assertInstanceOf('\\CHH\\Silex\\CacheServiceProvider\\CacheNamespace', $app['caches']['foo']);
+    }
+
+    function testSameNamespaceInDifferentCaches()
+    {
+        $app = new Application;
+        $app->register(new CacheServiceProvider);
+
+        $app['cache.options'] = array('default' => array(
+            'driver' => 'array'
+        ));
+
+        $bar = new ArrayCache;
+
+        $app['caches']['foo'] = $app->share($app['cache.namespace']('foo'));
+
+        $app['caches']['bar'] = $app->share($app['cache.namespace']('foo', $bar));
+        $app['caches']['bar']->save('foo', 'bar');
+
+        $this->assertFalse($app['caches']['foo']->contains('foo'));
+        $this->assertEquals('bar', $app['caches']['bar']->fetch('foo'));
     }
 }

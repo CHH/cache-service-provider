@@ -74,9 +74,13 @@ class CacheServiceProvider implements ServiceProviderInterface
             };
         });
 
-        $app['cache.namespace'] = $app->protect(function($name) use ($app) {
-            return function() use ($app, $name) {
-                return new CacheNamespace($name, $app['cache']);
+        $app['cache.namespace'] = $app->protect(function($name, Cache $cache = null) use ($app) {
+            return function() use ($app, $name, $cache) {
+                if (null === $cache) {
+                    $cache = $app['cache'];
+                }
+
+                return new CacheNamespace($name, $cache);
             };
         });
 
