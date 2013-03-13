@@ -58,7 +58,12 @@ class CacheServiceProvider implements ServiceProviderInterface
                     }
                 }
 
-                $cache = $class->newInstanceArgs($newInstanceArguments);
+                // Workaround for PHP 5.3.3 bug #52854 <https://bugs.php.net/bug.php?id=52854>
+                if (count($newInstanceArguments) > 0) {
+                    $cache = $class->newInstanceArgs($newInstanceArguments);
+                } else {
+                    $cache = $class->newInstanceArgs();
+                }
 
                 if (!$cache instanceof Cache) {
                     throw new \UnexpectedValueException(sprintf(
