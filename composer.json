@@ -1,6 +1,6 @@
 {
     "name": "chh/cache-service-provider",
-    "description": "A Cache Service Provider for Silex, using Doctrine\\Common\\Cache",
+    "description": "Provides easy to use caching for Silex applications, built on top of the doctrine/cache package",
     "license": "MIT",
     "authors": [
         {
