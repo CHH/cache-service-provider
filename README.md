@@ -14,7 +14,7 @@ If you haven't got composer:
 
 Add `chh/cache-service-provider` to your `composer.json`:
 
-    % php composer.phar require chh/cache-service-provider:*@dev
+    % php composer.phar require chh/cache-service-provider:~1.0
 
 ## Usage
 
