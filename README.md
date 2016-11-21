@@ -25,12 +25,14 @@ The cache named `default` is the cache available through the container's
 ```php
 <?php
 
+use Doctrine\Common\Cache\ApcuCache;
+
 $app = new Silex\Application;
 
 $app->register(new \CHH\Silex\CacheServiceProvider, [
     'cache.options' => [
-        "default" => [
-            "driver" => "apc",
+        'default' => [
+            'driver' => ApcuCache::class,
         ],
     ],
 ]);
