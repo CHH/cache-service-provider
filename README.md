@@ -27,11 +27,13 @@ The cache named `default` is the cache available through the container's
 
 $app = new Silex\Application;
 
-$app->register(new \CHH\Silex\CacheServiceProvider, array(
-    'cache.options' => array("default" => array(
-        "driver" => "apc"
-    ))
-));
+$app->register(new \CHH\Silex\CacheServiceProvider, [
+    'cache.options' => [
+        "default" => [
+            "driver" => "apc",
+        ],
+    ],
+]);
 ```
 
 The driver name can be one of the following:
@@ -62,7 +64,7 @@ $app->register(new \CHH\Silex\CacheServiceProvider, [
         'default' => ['driver' => ApcCache::class],
         'file' => [
             'driver' => 'filesystem',
-            'directory' => '/tmp/myapp'
+            'directory' => '/tmp/myapp',
         ],
         'global' => [
             'driver' => function() {
@@ -70,9 +72,9 @@ $app->register(new \CHH\Silex\CacheServiceProvider, [
                 $redis->setRedis($app['redis']);
 
                 return $redis;
-            }
-        ]
-    ]
+            },
+        ],
+    ],
 ]);
 ```
 
@@ -99,7 +101,7 @@ for Pimple.
 
 $factory = $app['cache.factory']([
     'driver' => 'filesystem',
-    'directory' => sys_get_temp_dir() . '/myext'
+    'directory' => sys_get_temp_dir() . '/myext',
 ]);
 
 $app['caches']['myext'] = $app['caches']->share($factory);
