@@ -2,14 +2,14 @@
 
 namespace CHH\Silex;
 
-use Silex\Application;
-use Silex\ServiceProviderInterface;
+use Pimple\Container;
+use Pimple\ServiceProviderInterface;
 use Doctrine\Common\Cache\Cache;
 use CHH\Silex\CacheServiceProvider\CacheNamespace;
 
 class CacheServiceProvider implements ServiceProviderInterface
 {
-    function register(Application $app)
+    function register(Container $app)
     {
         $app['cache.factory'] = $app->protect(function($options) {
             return function() use ($options) {
@@ -89,23 +89,19 @@ class CacheServiceProvider implements ServiceProviderInterface
             };
         });
 
-        $app['cache'] = $app->share(function($app) {
+        $app['cache'] = function($app) {
             $factory = $app['cache.factory']($app['cache.options']['default']);
             return $factory();
-        });
+        };
 
-        $app['caches'] = $app->share(function($app) {
-            $caches = new \Pimple;
+        $app['caches'] = function($app) {
+            $caches = new Container;
 
             foreach ($app['cache.options'] as $cache => $options) {
-                $caches[$cache] = $app->share($app['cache.factory']($options));
+                $caches[$cache] = $app['cache.factory']($options);
             }
 
             return $caches;
-        });
-    }
-
-    function boot(Application $app)
-    {
+        };
     }
 }
