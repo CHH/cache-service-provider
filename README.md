@@ -7,7 +7,7 @@ to other service providers.
 
 Install with [composer](https://getcomposer.org):
 
-    % php composer.phar require chh/cache-service-provider:~1.0
+    % composer require chh/cache-service-provider
 
 ## Usage
 
