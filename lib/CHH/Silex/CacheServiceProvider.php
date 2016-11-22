@@ -97,8 +97,7 @@ class CacheServiceProvider implements ServiceProviderInterface
 
         // Default Cache Service
         $app['cache'] = function ($app) {
-            $factory = $app['cache.factory']($app['cache.options']['default']);
-            return $factory();
+            return $app['caches']['default'];
         };
 
         // Collection of all defined caches
