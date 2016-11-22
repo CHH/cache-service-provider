@@ -63,13 +63,13 @@ To configure multiple caches, define them as additional keys in
 ```php
 $app->register(new \CHH\Silex\CacheServiceProvider, [
     'cache.options' => [
-        'default' => ['driver' => ApcCache::class],
+        'default' => ['driver' => ApcuCache::class],
         'file' => [
             'driver' => 'filesystem',
             'directory' => '/tmp/myapp',
         ],
         'global' => [
-            'driver' => function() {
+            'driver' => function () {
                 $redis = new \Doctrine\Common\Cache\RedisCache;
                 $redis->setRedis($app['redis']);
 
@@ -101,12 +101,10 @@ for Pimple.
 ```php
 <?php
 
-$factory = $app['cache.factory']([
+$app['caches']['myext'] = $app['cache.factory']([
     'driver' => 'filesystem',
     'directory' => sys_get_temp_dir() . '/myext',
 ]);
-
-$app['caches']['myext'] = $app['caches']->share($factory);
 ```
 
 Extensions should prefix their cache keys to avoid conflicts
@@ -122,27 +120,27 @@ there's also a `namespace` configuration option.
 ```php
 <?php
 
+use Pimple\Container;
+use Pimple\ServiceProviderInterface;
 use CHH\Silex\CacheServiceProvider\CacheNamespace;
 
-class ExampleServiceProvider extends \Silex\ServiceProviderInterface
+class ExampleServiceProvider extends ServiceProviderInterface
 {
-    function register(\Silex\Application $app)
+    function register(Container $app)
     {
         // Check if Cache Service Provider is registered:
         if (isset($app['caches'])) {
-            $app['caches'] = $app->share($app->extend(function ($caches) use ($app) {
+            $app['caches'] = $app->extend(function ($caches) use ($app) {
                 // Use a CacheNamespace to safely add keys to the default
                 // cache.
-                $caches['example'] = $app->share(function () use ($caches) {
+                $caches['example'] = function () use ($caches) {
                     return new CacheNamespace('example', $caches['default']);
-                });
-                
+                };
+
                 return $caches;
             });
         }
     }
-
-    function boot(\Silex\Application $app) {}
 }
 ```
 
@@ -152,9 +150,9 @@ to a Pimple container. Using this, the above code can be further simplified:
 ```php
 // Check if Cache Service Provider is registered:
 if (isset($app['caches'])) {
-    $app['caches'] = $app->share($app->extend(function ($caches) use ($app) {
+    $app['caches'] = $app->extend(function ($caches) use ($app) {
         // Use a CacheNamespace to safely add keys to the default cache
-        $caches['example'] = $app->share($app['cache.namespace']('example'));
+        $caches['example'] = $app['cache.namespace']('example');
         
         return $caches;
     });
