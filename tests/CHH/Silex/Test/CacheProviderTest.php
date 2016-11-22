@@ -3,6 +3,7 @@
 namespace CHH\Silex\Test;
 
 use CHH\Silex\CacheServiceProvider;
+use CHH\Silex\CacheServiceProvider\CacheNamespace;
 use Silex\Application;
 use Doctrine\Common\Cache;
 use Doctrine\Common\Cache\ArrayCache;
@@ -10,46 +11,48 @@ use Doctrine\Common\Cache\FilesystemCache;
 
 class CacheProviderTest extends \PHPUnit_Framework_TestCase
 {
+    private $app;
+
+    function setUp()
+    {
+        $this->app = new Application;
+        $this->app->register(new CacheServiceProvider);
+    }
+
     function testDefaultCache()
     {
-        $app = new Application;
-
-        $app->register(new CacheServiceProvider, array(
-            'cache.options' => array("default" => array(
+        $this->app['cache.options'] = array(
+            "default" => array(
                 'driver' => "array"
-            ))
-        ));
+            )
+        );
 
-        $this->assertInstanceOf('\\Doctrine\\Common\\Cache\\ArrayCache', $app['cache']);
+        $this->assertInstanceOf('\\Doctrine\\Common\\Cache\\ArrayCache', $this->app['cache']);
     }
 
     function testMultipleCaches()
     {
-        $app = new Application;
-
-        $app->register(new CacheServiceProvider, array(
-            'cache.options' => array(
-                "default" => array('driver' => "array"),
-                "foo" => array(
-                    'driver' => FilesystemCache::class,
-                    'directory' => '/tmp'
-                )
+        $this->app['cache.options'] = array(
+            "default" => array('driver' => "array"),
+            "foo" => array(
+                'driver' => FilesystemCache::class,
+                'directory' => '/tmp'
             )
-        ));
+        );
 
-        $this->assertInstanceOf('\\Doctrine\\Common\\Cache\\FilesystemCache', $app['caches']['foo']);
-        $this->assertInstanceOf('\\Doctrine\\Common\\Cache\\ArrayCache', $app['cache']);
+        $this->assertInstanceOf('\\Doctrine\\Common\\Cache\\FilesystemCache', $this->app['caches']['foo']);
+        $this->assertInstanceOf('\\Doctrine\\Common\\Cache\\ArrayCache', $this->app['cache']);
     }
 
     function testCacheFactory()
     {
-        $app = new Application;
+        $app = $this->app;
 
-        $app->register(new CacheServiceProvider, array('cache.options' => array(
-            'default' => 'array'
-        )));
+        $this->app['cache.options'] = [
+            'default' => 'array',
+        ];
 
-        $app['caches'] = $app->extend('caches', function($caches) use ($app) {
+        $this->app['caches'] = $this->app->extend('caches', function($caches) use ($app) {
             $caches['foo'] = $app['cache.factory'](array(
                 'driver' => 'array'
             ));
@@ -61,14 +64,13 @@ class CacheProviderTest extends \PHPUnit_Framework_TestCase
             return $caches;
         });
 
-        $this->assertInstanceOf('\\Doctrine\\Common\\Cache\\ArrayCache', $app['caches']['foo']);
-        $this->assertInstanceOf('\\Doctrine\\Common\\Cache\\ArrayCache', $app['caches']['bar']);
+        $this->assertInstanceOf('\\Doctrine\\Common\\Cache\\ArrayCache', $this->app['caches']['foo']);
+        $this->assertInstanceOf('\\Doctrine\\Common\\Cache\\ArrayCache', $this->app['caches']['bar']);
     }
 
     function testNamespaceFactory()
     {
-        $app = new Application;
-        $app->register(new CacheServiceProvider);
+        $app = $this->app;
 
         $app['cache.options'] = array('default' => array(
             'driver' => 'array'
@@ -76,13 +78,12 @@ class CacheProviderTest extends \PHPUnit_Framework_TestCase
 
         $app['caches']['foo'] = $app['cache.namespace']('foo');
 
-        $this->assertInstanceOf('\\CHH\\Silex\\CacheServiceProvider\\CacheNamespace', $app['caches']['foo']);
+        $this->assertInstanceOf(CacheNamespace::class, $app['caches']['foo']);
     }
 
     function testSameNamespaceInDifferentCaches()
     {
-        $app = new Application;
-        $app->register(new CacheServiceProvider);
+        $app = $this->app;
 
         $app['cache.options'] = array('default' => array(
             'driver' => 'array'
@@ -97,5 +98,32 @@ class CacheProviderTest extends \PHPUnit_Framework_TestCase
 
         $this->assertFalse($app['caches']['foo']->contains('foo'));
         $this->assertEquals('bar', $app['caches']['bar']->fetch('foo'));
+    }
+
+    function testDefaultCacheServiceIsTheSameInstanceInCacheCollection()
+    {
+        $app = $this->app;
+
+        $app['cache.options'] = [
+            'default' => [
+                'driver' => 'array',
+            ],
+        ];
+
+        $this->assertEquals($app['caches']['default'], $app['cache']);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    function testErrorWhenNoDefaultCacheIsDefineD()
+    {
+        $app = $this->app;
+
+        $app['cache.options'] = [
+            'foo' => ['driver' => 'array'],
+        ];
+
+        $app['cache'];
     }
 }
