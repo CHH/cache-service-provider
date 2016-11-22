@@ -6,6 +6,7 @@ use CHH\Silex\CacheServiceProvider;
 use Silex\Application;
 use Doctrine\Common\Cache;
 use Doctrine\Common\Cache\ArrayCache;
+use Doctrine\Common\Cache\FilesystemCache;
 
 class CacheProviderTest extends \PHPUnit_Framework_TestCase
 {
@@ -30,7 +31,7 @@ class CacheProviderTest extends \PHPUnit_Framework_TestCase
             'cache.options' => array(
                 "default" => array('driver' => "array"),
                 "foo" => array(
-                    'driver' => '\\Doctrine\\Common\\Cache\\FilesystemCache',
+                    'driver' => FilesystemCache::class,
                     'directory' => '/tmp'
                 )
             )
@@ -48,17 +49,17 @@ class CacheProviderTest extends \PHPUnit_Framework_TestCase
             'default' => 'array'
         )));
 
-        $app['caches'] = $app->share($app->extend('caches', function($caches) use ($app) {
-            $caches['foo'] = $app->share($app['cache.factory'](array(
+        $app['caches'] = $app->extend('caches', function($caches) use ($app) {
+            $caches['foo'] = $app['cache.factory'](array(
                 'driver' => 'array'
-            )));
+            ));
 
-            $caches['bar'] = $app->share($app['cache.factory'](array(
+            $caches['bar'] = $app['cache.factory'](array(
                 'driver' => function() { return new Cache\ArrayCache; }
-            )));
+            ));
 
             return $caches;
-        }));
+        });
 
         $this->assertInstanceOf('\\Doctrine\\Common\\Cache\\ArrayCache', $app['caches']['foo']);
         $this->assertInstanceOf('\\Doctrine\\Common\\Cache\\ArrayCache', $app['caches']['bar']);
@@ -73,7 +74,7 @@ class CacheProviderTest extends \PHPUnit_Framework_TestCase
             'driver' => 'array'
         ));
 
-        $app['caches']['foo'] = $app->share($app['cache.namespace']('foo'));
+        $app['caches']['foo'] = $app['cache.namespace']('foo');
 
         $this->assertInstanceOf('\\CHH\\Silex\\CacheServiceProvider\\CacheNamespace', $app['caches']['foo']);
     }
@@ -89,9 +90,9 @@ class CacheProviderTest extends \PHPUnit_Framework_TestCase
 
         $bar = new ArrayCache;
 
-        $app['caches']['foo'] = $app->share($app['cache.namespace']('foo'));
+        $app['caches']['foo'] = $app['cache.namespace']('foo');
 
-        $app['caches']['bar'] = $app->share($app['cache.namespace']('foo', $bar));
+        $app['caches']['bar'] = $app['cache.namespace']('foo', $bar);
         $app['caches']['bar']->save('foo', 'bar');
 
         $this->assertFalse($app['caches']['foo']->contains('foo'));

@@ -7,6 +7,10 @@ use Pimple\ServiceProviderInterface;
 use Doctrine\Common\Cache\Cache;
 use CHH\Silex\CacheServiceProvider\CacheNamespace;
 
+/**
+ * Cache Service Provider class
+ * @api
+ */
 class CacheServiceProvider implements ServiceProviderInterface
 {
     function register(Container $app)
@@ -25,10 +29,10 @@ class CacheServiceProvider implements ServiceProviderInterface
                     return $cache;
                 }
 
-                # If the driver name appears to be a fully qualified class name, then use
-                # it verbatim as driver class. Otherwise look the driver up in Doctrine's
-                # builtin cache providers.
-                if (substr($options['driver'], 0, 1) === '\\') {
+                // If the driver name appears to be a fully qualified class name, then use
+                // it verbatim as driver class. Otherwise look the driver up in Doctrine's
+                // builtin cache providers.
+                if (class_exists($options['driver'])) {
                     $driverClass = $options['driver'];
                 } else {
                     $driverClass = "\\Doctrine\\Common\\Cache\\"
