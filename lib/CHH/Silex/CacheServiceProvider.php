@@ -15,8 +15,9 @@ class CacheServiceProvider implements ServiceProviderInterface
 {
     function register(Container $app)
     {
-        $app['cache.factory'] = $app->protect(function($options) {
-            return function() use ($options) {
+        // Cache factory function, which creates a new cache with the given options
+        $app['cache.factory'] = $app->protect(function ($options) {
+            return function () use ($options) {
                 if (is_callable($options['driver'])) {
                     $cache = $options['driver']();
 
@@ -83,8 +84,9 @@ class CacheServiceProvider implements ServiceProviderInterface
             };
         });
 
-        $app['cache.namespace'] = $app->protect(function($name, Cache $cache = null) use ($app) {
-            return function() use ($app, $name, $cache) {
+        // Returns a function which creates a new cache namespace for the cache
+        $app['cache.namespace'] = $app->protect(function ($name, Cache $cache = null) use ($app) {
+            return function () use ($app, $name, $cache) {
                 if (null === $cache) {
                     $cache = $app['cache'];
                 }
@@ -93,12 +95,14 @@ class CacheServiceProvider implements ServiceProviderInterface
             };
         });
 
-        $app['cache'] = function($app) {
+        // Default Cache Service
+        $app['cache'] = function ($app) {
             $factory = $app['cache.factory']($app['cache.options']['default']);
             return $factory();
         };
 
-        $app['caches'] = function($app) {
+        // Collection of all defined caches
+        $app['caches'] = function ($app) {
             $caches = new Container;
 
             foreach ($app['cache.options'] as $cache => $options) {
